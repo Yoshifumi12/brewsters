@@ -1,5 +1,5 @@
 import { NextPage } from "next";
-import { SideNav } from "~/components/SideNav";
+import SideNav from "~/components/SideNav";
 
 const DashboardPage: NextPage = () => {
   return (
