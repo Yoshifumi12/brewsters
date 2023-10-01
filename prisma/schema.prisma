@@ -3,129 +3,92 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url = env("DATABASE_URL")
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
   relationMode = "prisma"
 }
 
 model Products {
-  productId          String   @id @default(cuid())
-  productImage       String
-  productName        String
-  productStock       Int
-  productDescription String
-  userId             String
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @default(now())
-  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  orders             Orders[]
-  deliveries           Deliveries[]
+  productId    String       @id @default(cuid())
+  productName  String
+  productStock Int          @default(0)
+  userId       String
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @default(now())
+  supplierName String
+  supplier     Suppliers    @relation(fields: [supplierName], references: [supplierId], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-}
-
-model Orders {
-  orderId           String   @id @default(cuid())
-  productId         String
-  quantityOrdered   Int
-  quantityReceived  Int?
-  status            String
-  userId            String
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @default(now())
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  product          Products @relation(fields: [productId], references: [productId], onDelete: Cascade)
-  deliveries          Deliveries[]
-
-  @@index([userId])
-  @@index([productId])
+  @@index([supplierName])
 }
 
 model Suppliers {
-    supplierId          String  @id @default(cuid())
-    createdAt           DateTime @default(now())
-    supplierLocation    DateTime @default(now())
-    email               String
-    userId              String
-    user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    deliveries          Deliveries[]
+  supplierId       String       @id @default(cuid())
+  supplierName     String
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime?
+  supplierLocation String
+  email            String
+  userId           String
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  products         Products[]
 
-    @@index([userId])
+  @@index([userId])
 }
 
-model Deliveries {
-    deliveryId          String  @id @default(cuid())
-    dateReceived        DateTime
-    quantityReceived    Int
-    productId           String
-    supplierId          String
-    orderId            String
-    userId              String
-    product            Products @relation(fields: [productId], references: [productId], onDelete: Cascade)
-    supplier           Suppliers @relation(fields: [supplierId], references: [supplierId], onDelete: Cascade)
-    order              Orders    @relation(fields: [orderId], references: [orderId], onDelete: Cascade)
-    user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    @@index([productId])
-    @@index([supplierId])
-    @@index([orderId])
-    @@index([userId])
- 
-}
 
 // Necessary for Next auth
 model Account {
-    id                String  @id @default(cuid())
-    userId            String
-    type              String
-    provider          String
-    providerAccountId String
-    refresh_token     String?  @db.Text
-    access_token      String?  @db.Text
-    expires_at        Int?
-    token_type        String?
-    scope             String?
-    id_token          String?  @db.Text
-    session_state     String?
-    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@unique([provider, providerAccountId])
-
-    @@index([userId])
+  @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
-    id           String   @id @default(cuid())
-    sessionToken String   @unique
-    userId       String
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@index([userId])
+  @@index([userId])
 }
 
 model User {
-  id            String     @id @default(cuid())
-  name          String?
-  email         String?    @unique
-  password      String?     
-  image         String?
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime?
-  accounts      Account[]
-  sessions      Session[]
-  products      Products[] 
-  orders        Orders[]  
-  suppliers     Suppliers[]
-  deliveries     Deliveries[]
+  id         String       @id @default(cuid())
+  name       String
+  email      String       @unique
+  password   String
+  image      String?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime?
+  createdBy  String?
+  accounts   Account[]
+  sessions   Session[]
+  products   Products[]
+  suppliers  Suppliers[]
 
   @@unique([id])
 }
 
 model VerificationToken {
-    identifier String
-    token      String   @unique
-    expires    DateTime
+  identifier String
+  token      String   @unique
+  expires    DateTime
 
-    @@unique([identifier, token])
+  @@unique([identifier, token])
 }

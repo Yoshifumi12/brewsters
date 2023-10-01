@@ -1,24 +1,25 @@
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { useState } from "react";
 
 const TopNav = () => {
     const session = useSession();
     const user = session.data?.user;
 
     return (
-        <nav className="w-7/10">
+        <nav className="flex-auto h-12 bg-slate-50">
             <div className="topNav">
-                <Link href={""} style={{ color: '#311c10' }}>
-                    <i className="fa fa-navicon"></i>
-                </Link>
-                <Link href={""} style={{ color: '#311c10' }}>
-                    <i className="fa fa-power-off"></i>
-                    Log Out
-                </Link>
-
+                <div className="topNavMenu text-l p-3">
+                    <Link href={""} style={{ color: '#311c10' }}>
+                        <i className="fa fa-navicon px-1"></i>
+                    </Link>
+                    <Link href={""} style={{ color: '#311c10' }} className="float-right">
+                        <i className="fa fa-power-off px-1"></i>
+                        Log Out
+                    </Link>
+                </div>
             </div>
         </nav>
-
     );
 };
 

@@ -18,7 +18,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
         <meta name="description" content="This is an inventory management system by Yoshifumi Suzuki" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="min-h-screen flex-grow"> 
+      <div className="min-h-screen flex-grow bg-neutral-100"> 
         <Component {...pageProps} />
       </div>
     </SessionProvider>
