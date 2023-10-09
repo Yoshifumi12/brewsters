@@ -8,12 +8,10 @@ async function main() {
     update: {},
     create: {
       email: 'Lily@prisma.io',
-      name: 'Lily',
+      name: 'Lily Morrow',
       password: 'nmixxchangeupletsgo'
     },
   });
-
-  console.log({ Lily });
 }
 
 main()

@@ -1,4 +1,15 @@
+import { api } from "~/utils/api";
+
 const ViewProducts = () => {
+    const listProducts = api.product.allProducts.useQuery();
+
+    const deleteProductMutation = api.product.delete.useMutation({
+        onSuccess: () => {
+            listProducts.refetch()
+        }
+    });
+
+    const deleteProduct = (productId: { productId: string }) => deleteProductMutation.mutate(productId);
     return (
         <div className="flex h-screen flex-col">
             <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">List Of Products</h2>
@@ -17,18 +28,22 @@ const ViewProducts = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td className="border px-4 py-2">01</td>
-                            <td className="border px-4 py-2">Lily Morrow</td>
-                            <td className="border px-4 py-2">Lily@gmail.com</td>
-                            <td className="border px-4 py-2">/image/image.png</td>
-                            <td className="border px-4 py-2">01</td>
-                            <td className="border px-4 py-2">01</td>
-                            <td className="border px-4 py-2">01</td>
-                            <td ><div className="pl-1"><button className="px-3 py-2 self-end border border-2 rounded-lg bg-green-500"> Edit</button></div></td>
-                            <td ><div className="pl-1"><button className="px-3 py-2 self-end border border-2 rounded-lg bg-red-500"> Delete</button></div></td>
+                        {listProducts.data?.map((product) => (
+                            <tr key={product.productId}>
+                                <td className="border px-4 py-2">{product.productId}</td>
+                                <td className="border px-4 py-2">{product.productName}</td>
+                                <td className="border px-4 py-2">{product.productStock}</td>
+                                <td className="border px-4 py-2">{product.supplierName}</td>
+                                <td className="border px-4 py-2">{product.createdAt.toLocaleDateString()}</td>
+                                <td className="border px-4 py-2">{product.updatedAt?.toLocaleDateString()}</td>
+                                <td className="border px-4 py-2">{product.userId}</td>
 
-                        </tr>
+
+                                <td ><div className="pl-1"><button className="px-3 py-2 self-end border border-2 rounded-lg bg-green-500"> Edit</button></div></td>
+                                <td ><div className="pl-1"><button onClick={() => deleteProduct({ productId: product.productId })} className="px-3 py-2 self-end border border-2 rounded-lg bg-red-500"> Delete</button></div></td>
+
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </div>

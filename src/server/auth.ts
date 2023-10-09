@@ -10,6 +10,7 @@ import DiscordProvider from "next-auth/providers/discord";
 import { env } from "~/env.mjs";
 import { db } from "~/server/db";
 
+import CredentialsProvider from "next-auth/providers/credentials";
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
  * object and keep type safety.
@@ -37,6 +38,12 @@ declare module "next-auth" {
  * @see https://next-auth.js.org/configuration/options
  */
 export const authOptions: NextAuthOptions = {
+  pages: {
+    signIn: "/"
+  },
+  session: {
+    strategy: 'jwt'
+  },
   callbacks: {
     session: ({ session, user }) => ({
       ...session,
@@ -48,10 +55,38 @@ export const authOptions: NextAuthOptions = {
   },
   adapter: PrismaAdapter(db),
   providers: [
-    DiscordProvider({
-      clientId: env.DISCORD_CLIENT_ID,
-      clientSecret: env.DISCORD_CLIENT_SECRET,
-    }),
+    CredentialsProvider({
+      // The name to display on the sign-in form (e.g., 'Sign in with...')
+      name: 'Credentials',
+      credentials: {
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
+
+      },
+      authorize: async (credentials) => {
+        // Add your own logic here to find the user from your database
+        const user = await prisma.user.findUnique({
+          where: {
+            email: credentials?.email,
+
+          },
+        });
+        if (!user) {
+          return null
+        }
+
+        const passwordMatch = user.password === credentials?.password
+
+        if (!passwordMatch) {
+          return null;
+        }
+
+        return {
+          id: user.id,
+          email: user.email,
+        };
+      }
+    })
     /**
      * ...add more providers here.
      *
