@@ -9,7 +9,7 @@ const AddProductPage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Brewsters - New User</title>
+        <title>Brewsters - New Product</title>
       </Head>
       <div className="flex">
         <SideNav />

@@ -1,6 +1,4 @@
-"use client";
-
-import { useSession } from "next-auth/react";
+import router from "next/router";
 import { FormEvent, useState } from "react";
 import { api } from "~/utils/api";
 
@@ -10,18 +8,17 @@ const NewUserForm = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('')
 
-    const session = useSession();
 
     const createNewUser = api.user.create.useMutation({
-        onSuccess: newUser => {
-            console.log(newUser);
-        },
         onError: error => {
             if (error.message === 'Email already exists') {
                 setError('Email already exists');
             } else {
                 setError('An unknown error occurred');
             }
+        },
+        onSuccess: () => {
+            router.replace("/users/view")
         }
     });
 

@@ -1,31 +1,29 @@
-import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import { api } from "~/utils/api";
 
 const SideNav = () => {
-  const [sideNavWidth, setSideNavWidth] = useState("w-10");
+  const [sideNavWidth, setSideNavWidth] = useState("w-2/10");
   const [sideContentPosition, setContentPosition] = useState("pl-2");
   const [navIconPosition, setNavIconPosition] = useState("pr-3 pt-2");
   const [userDropdownVisible, setUserDropdownVisible] = useState("hidden")
   const [productDropdownVisible, setProductDropdownVisible] = useState("hidden")
   const [supplierDropdownVisible, setSupplierDropdownVisible] = useState("hidden")
 
-
-
-  const session = useSession();
-  const user = session.data?.user;
   const router = useRouter();
+  const token = api.loginToken.getToken.useQuery();
+  const user = api.user.findById.useQuery(`${token.data?.userId}`)
 
   const isCurrentPage = (path: string) => {
     return router.asPath === path;
   };
 
   const toggleSideNav = () => {
-    setSideNavWidth((prevWidth) => (prevWidth === "w-2/10" ? "w-10" : "w-2/10"));
+    setSideNavWidth((prevWidth) => (prevWidth === "w-10" ? "w-2/10" : "w-10"));
     setContentPosition((prevPosition) => prevPosition === "px-1" ? "pl-2" : "px-1");
     setNavIconPosition((prevPosition) => prevPosition === "pr-3 pt-2" ? "px-1" : "pr-3 pt-2")
-    
+
 
     if (userDropdownVisible === "") {
       toggleUserDropdown();
@@ -35,7 +33,7 @@ const SideNav = () => {
       toggleProductDropdown();
     }
 
-    if(supplierDropdownVisible === ""){
+    if (supplierDropdownVisible === "") {
       toggleSupplierDropdown();
     }
   }
@@ -72,8 +70,8 @@ const SideNav = () => {
         )}
         {shouldDisplayContent && (
           <div className="sideNavUser flex flex-col items-center border-b-2 border-amber-950">
-            <img className="mx-50 h-15 w-15" src="" alt="User Image" />
-            <span>{user?.name}</span>
+            <img className="mx-50 w-auto h-20 rounded-full" src={user.data?.image}  alt="User Image" />
+            <span>{user.data?.name}</span>
           </div>
         )}
 
@@ -87,15 +85,14 @@ const SideNav = () => {
                 </span>
               </Link>
             </li>
-            <li className={`flex items-center ${isCurrentPage("/reports") ? 'bg-yellow-600' : 'hover:bg-yellow-500'} py-1`}>
+            {/* <li className={`flex items-center ${isCurrentPage("/reports") ? 'bg-yellow-600' : 'hover:bg-yellow-500'} py-1`}>
               <Link href="/reports" style={{ color: '#311c10' }} className="pr-2">
                 <i className={`fa fa-clipboard ${sideContentPosition}`}></i>
                 <span className={shouldDisplayContent ? '' : 'hidden'}>
                   Reports
                 </span>
-
               </Link>
-            </li>
+            </li> */}
             <li className={`flex items-center ${isCurrentPage("") ? 'bg-yellow-600' : 'hover:bg-yellow-500'} py-1`}>
               <Link href="" style={{ color: '#311c10' }} className="pr-2" onClick={toggleProductDropdown}>
                 <i className={`fa fa-cube ${sideContentPosition}`}></i>
@@ -135,7 +132,7 @@ const SideNav = () => {
             {supplierVisible && (
               <li className={`flex items-center ${isCurrentPage("/suppliers/add") ? 'bg-yellow-600' : 'hover:bg-yellow-500'} py-1`}>
                 <Link href="/suppliers/add" style={{ color: '#311c10' }} className="pr-2">
-                  <i className={` fa fa-cube pl-3 pr-1 ${sideContentPosition}`}></i>
+                  <i className={` fa fa-user-plus pl-3 pr-1 ${sideContentPosition}`}></i>
                   <span className={shouldDisplayContent ? '' : 'hidden'}>
                     Add Supplier
                   </span>
@@ -145,7 +142,7 @@ const SideNav = () => {
             {supplierVisible && (
               <li className={`flex items-center ${isCurrentPage("/suppliers/view") ? 'bg-yellow-600' : 'hover:bg-yellow-500'} py-1`}>
                 <Link href="/suppliers/view" style={{ color: '#311c10' }} className="pr-2">
-                  <i className={` fa fa-cube pl-3 pr-1 ${sideContentPosition}`}></i>
+                  <i className={` fa fa-user pl-3 pr-1 ${sideContentPosition}`}></i>
                   <span className={shouldDisplayContent ? '' : 'hidden'}>
                     View Supplier
                   </span>
@@ -154,7 +151,7 @@ const SideNav = () => {
             )}
             <li className={`flex items-center ${isCurrentPage("") ? 'bg-yellow-600' : 'hover:bg-yellow-500'} py-1`}>
               <Link href="" style={{ color: '#311c10' }} className="pr-2" onClick={toggleUserDropdown}>
-                <i className={`fa fa-user ${sideContentPosition}`}></i>
+                <i className={`fa fa-users ${sideContentPosition}`}></i>
                 <span className={shouldDisplayContent ? '' : 'hidden'}>
                   Users
                 </span>
@@ -163,7 +160,7 @@ const SideNav = () => {
             {userVisible && (
               <li className={`flex items-center ${isCurrentPage("") ? 'bg-yellow-600' : 'hover:bg-yellow-500'} py-1`}>
                 <Link href="/users/new" style={{ color: '#311c10' }} className="pr-2">
-                  <i className={` fa fa-user pl-3 pr-1 ${sideContentPosition}`}></i>
+                  <i className={` fa fa-user-plus pl-3 pr-1 ${sideContentPosition}`}></i>
                   <span className={shouldDisplayContent ? '' : 'hidden'}>
                     Add Users
                   </span>

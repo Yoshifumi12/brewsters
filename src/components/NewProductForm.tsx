@@ -1,30 +1,39 @@
-import { useSession } from "next-auth/react";
-import { FormEvent, useEffect, useState } from "react";
-import { object } from "zod";
-import { supplierRouter } from "~/server/api/routers/supplier";
+import router from "next/router";
+import { FormEvent, useState } from "react";
 import { api } from "~/utils/api";
 
 const NewProductForm = () => {
     const [productName, setProductName] = useState("");
     const [supplierName, setSupplierName] = useState("");
+    const [error, setError] = useState("")
 
-    const session = useSession();
+    const token = api.loginToken.getToken.useQuery();
+    const user = api.user.findById.useQuery(`${token.data?.userId}`)
+    const supplier = api.supplier.findByName.useQuery(`${supplierName}`)
 
     const createNewProduct = api.product.create.useMutation({
-        onSuccess:
-            newProduct => {
-                console.log(newProduct);
-
-            }
+        onError: error => {
+            setError(error.message)
+        },
+        onSuccess: () => {
+            router.replace("/products/view")
+        }
     });
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
-        createNewProduct.mutate({
-            productName, supplierName,
-            userId: "clne62gcv000ixmkoqwbetn9m",
-            supplierId:"clne6lsn2000uxmkor42aavzt"
-        });
+        if (supplier.data !== undefined) {
+            createNewProduct.mutate({
+                productName,
+                supplierName: `${supplier.data?.supplierName}`,
+                userName: `${user.data?.name}`,
+                userId: `${user.data?.id}`,
+                supplierId: `${supplier.data?.supplierId}`
+            });
+        }
+        else{
+            setError("Supplier does not exist")
+        }
     }
     return (
         <div className="flex h-screen flex-col">
@@ -52,6 +61,11 @@ const NewProductForm = () => {
                     <div>
                         <button type="submit" style={{ backgroundColor: '#ffe4c8', color: '#311c10' }} className="flex w-full justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm">Add New Product</button>
                     </div>
+                    {error && (
+                        <div className="bg-red-500 text-white w-fit text-sm rounded-md p-1">
+                            {error}
+                        </div>
+                    )}
                 </form>
             </div>
         </div>

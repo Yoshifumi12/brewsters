@@ -4,12 +4,14 @@ const prisma = new PrismaClient();
 
 async function main() {
   const Lily = await prisma.user.upsert({
-    where: { email: 'Lily@prisma.io' },
+    where: { email: 'lily@gmail.com' },
     update: {},
     create: {
-      email: 'Lily@prisma.io',
+      email: 'lily@gmail.com',
       name: 'Lily Morrow',
-      password: 'nmixxchangeupletsgo'
+      password: 'nmixxchangeupletsgo',
+      image: 'https://i.pinimg.com/750x/eb/d3/98/ebd398d60413cc3a2b92fff6bed4a238.jpg',
+
     },
   });
 }

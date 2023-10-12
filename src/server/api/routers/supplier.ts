@@ -1,10 +1,5 @@
 import { z } from "zod";
-
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "~/server/api/trpc";
+import { createTRPCRouter, publicProcedure, } from "~/server/api/trpc";
 import { db } from "~/server/db";
 
 export const supplierRouter = createTRPCRouter({
@@ -13,14 +8,33 @@ export const supplierRouter = createTRPCRouter({
       supplierName: z.string(),
       supplierEmail: z.string(),
       supplierAddress: z.string(),
-      userId: z.string()
+      userId: z.string(),
+      userName: z.string(),
     }))
     .mutation(async (opts) => {
       const { input } = opts;
 
-      const supplier = await db.suppliers.create({ data: input })
+      const existingSupplierEmail = await db.suppliers.findUnique({
+        where:{
+          supplierEmail: input.supplierEmail
+        }
+      })
+      const existingSupplierName = await db.suppliers.findUnique({
+        where:{
+          supplierName: input.supplierName
+        }
+      })
 
+      if(existingSupplierEmail){
+        throw new Error("Email Already Exists")
+      }
+
+      if(existingSupplierName){
+        throw new Error("Supplier Already Exists")
+      }
+      const supplier = await db.suppliers.create({ data: input })
       return supplier;
+
     }),
   allSuppliers: publicProcedure
     .query(async () => {
@@ -42,5 +56,19 @@ export const supplierRouter = createTRPCRouter({
       await db.suppliers.delete({
         where: { supplierId: input.supplierId }
       })
-    })
+    }),
+  findByName: publicProcedure
+    .input(z.string())
+    .query(async (opts) => {
+      const { input } = opts;
+      const supplier = await db.suppliers.findUnique({
+        where: {
+          supplierName: input
+        }
+      });
+      if (!supplier) {
+        throw new Error('supplier not found');
+      }
+      return supplier;
+    }),
 });

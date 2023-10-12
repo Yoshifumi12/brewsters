@@ -1,4 +1,4 @@
-import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { api } from "~/utils/api";
 
@@ -6,25 +6,29 @@ const NewSupplierForm = () => {
   const [supplierName, setSupplierName] = useState('');
   const [supplierEmail, setSupplierEmail] = useState('');
   const [supplierAddress, setSupplierAddress] = useState('');
-  const [userId, setUserId] = useState('');
+  const [error, setError] = useState('')
 
-  const { data: sessionData } = useSession();
+  const router = useRouter();
+
+  const token = api.loginToken.getToken.useQuery();
+
+  const user = api.user.findById.useQuery(`${token.data?.userId}`)
+
 
   const createNewSupplier = api.supplier.create.useMutation({
-    onSuccess: newSupplier => {
-      console.log(newSupplier);
+    onError: error => {
+      setError(error.message)
+    },
+    onSuccess: () => {
+      router.replace("/suppliers/view")
     }
   });
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (sessionData && sessionData.user) {
-      createNewSupplier.mutate({ supplierName, supplierEmail, supplierAddress, userId: "clne62gcv000ixmkoqwbetn9m" });
-    } else {
-      console.error('Session data or user is not available');
-    }
-  }
+    createNewSupplier.mutate({ supplierName, supplierEmail, supplierAddress, userId: `${user.data?.id}`, userName: `${user.data?.name}` });
 
+  }
   return (
     <div className="flex h-screen flex-col">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -60,6 +64,11 @@ const NewSupplierForm = () => {
           <div>
             <button type="submit" style={{ backgroundColor: '#ffe4c8', color: '#311c10' }} className="flex w-full justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm">Add New Supplier</button>
           </div>
+          {error && (
+            <div className="bg-red-500 text-white w-fit text-sm rounded-md p-1">
+              {error}
+            </div>
+          )}
         </form>
       </div>
     </div>

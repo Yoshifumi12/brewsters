@@ -1,10 +1,5 @@
 import { z } from "zod";
-
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "~/server/api/trpc";
+import { createTRPCRouter, publicProcedure, } from "~/server/api/trpc";
 import { db } from "~/server/db";
 
 export const userRouter = createTRPCRouter({
@@ -65,5 +60,33 @@ export const userRouter = createTRPCRouter({
       await db.user.delete({
         where: { id: input.id }
       })
-    })
+    }),
+  findByEmail: publicProcedure
+    .input(z.string())
+    .query(async (opts) => {
+      const { input } = opts;
+      const user = await db.user.findUnique({
+        where: {
+          email: input
+        }
+      });
+      if (!user) {
+        throw new Error('User not found');
+      }
+      return user;
+    }),
+  findById: publicProcedure
+    .input(z.string())
+    .query(async (opts) => {
+      const { input } = opts;
+      const user = await db.user.findUnique({
+        where: {
+          id: input
+        }
+      });
+      if (!user) {
+        throw new Error('User not found');
+      }
+      return user;
+    }),
 });

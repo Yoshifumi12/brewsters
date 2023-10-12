@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { api } from "~/utils/api";
 
 const ViewProducts = () => {
@@ -9,6 +10,17 @@ const ViewProducts = () => {
         }
     });
 
+    const updateStock = api.product.editStock.useMutation();
+
+    const [newStock, SetNewStock] = useState("")
+
+    const handleStockUpdate = (productId: string, newStock: string) => {
+
+        updateStock.mutate({ productId, productStock: newStock });
+    };
+
+
+
     const deleteProduct = (productId: { productId: string }) => deleteProductMutation.mutate(productId);
     return (
         <div className="flex h-screen flex-col">
@@ -17,7 +29,6 @@ const ViewProducts = () => {
                 <table className="table-auto mx-auto">
                     <thead>
                         <tr>
-                            <th className="border px-4 py-2">Id</th>
                             <th className="border px-4 py-2">Name</th>
                             <th className="border px-4 py-2">Stock</th>
                             <th className="border px-4 py-2"> Supplier</th>
@@ -30,16 +41,20 @@ const ViewProducts = () => {
                     <tbody>
                         {listProducts.data?.map((product) => (
                             <tr key={product.productId}>
-                                <td className="border px-4 py-2">{product.productId}</td>
                                 <td className="border px-4 py-2">{product.productName}</td>
-                                <td className="border px-4 py-2">{product.productStock}</td>
+                                <td className="border px-4 py-2">
+                                    <form onSubmit={(e) => {
+                                        e.preventDefault();
+                                        handleStockUpdate(product.productId, newStock);
+                                    }}>
+                                        <input id="stock" name="stock" type="number" autoComplete="number" defaultValue={product.productStock} onChange={e => SetNewStock(e.target.value)} required />
+                                    </form>
+                                </td>
                                 <td className="border px-4 py-2">{product.supplierName}</td>
                                 <td className="border px-4 py-2">{product.createdAt.toLocaleDateString()}</td>
                                 <td className="border px-4 py-2">{product.updatedAt?.toLocaleDateString()}</td>
-                                <td className="border px-4 py-2">{product.userId}</td>
+                                <td className="border px-4 py-2">{product.userName}</td>
 
-
-                                <td ><div className="pl-1"><button className="px-3 py-2 self-end border border-2 rounded-lg bg-green-500"> Edit</button></div></td>
                                 <td ><div className="pl-1"><button onClick={() => deleteProduct({ productId: product.productId })} className="px-3 py-2 self-end border border-2 rounded-lg bg-red-500"> Delete</button></div></td>
 
                             </tr>
