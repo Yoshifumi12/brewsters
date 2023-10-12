@@ -16,7 +16,7 @@ export const loginRouter = createTRPCRouter({
         }),
     delete: publicProcedure
         .input(z.object({
-            id: z.string(),
+            id: z.string().nonempty(),
         }))
         .mutation(async (opts) => {
             try {

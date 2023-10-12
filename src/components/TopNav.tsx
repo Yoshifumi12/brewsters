@@ -15,7 +15,7 @@ const TopNav = () => {
 
     const handleLogOut = (e: FormEvent) => {
         e.preventDefault();
-        if(!token){
+        if(!token || !token.data?.id){
             return null;
         }else{
             deleteToken({ id: token.data?.id })

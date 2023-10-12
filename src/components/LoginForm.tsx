@@ -1,4 +1,3 @@
-import { signIn, signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState, } from "react";
 import { api } from "~/utils/api";
@@ -11,6 +10,7 @@ const loginForm = () => {
     const [error] = useState('')
     const router = useRouter();
 
+    // problematic line of code  0_0 
     const user = api.user.findByEmail.useQuery(email);
 
     const createLoginToken = api.loginToken.create.useMutation({
@@ -22,7 +22,6 @@ const loginForm = () => {
 
     const handleLogin = async (e: FormEvent) => {
         e.preventDefault();
-
         if (user && user.data?.password === password) {
             await createLoginToken.mutateAsync({
                 userId: user.data.id
